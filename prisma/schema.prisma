@@ -1,0 +1,255 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  VIEWER
+  AGENT
+  COMPANY
+  ADMIN
+}
+
+enum PropertyType {
+  APARTMENT
+  VILLA
+  LAND
+  OFFICE
+  SHOP
+}
+
+enum PropertyStatus {
+  FOR_SALE
+  FOR_RENT
+}
+
+enum VideoFormat {
+  LONG
+  SHORT
+}
+
+enum AdType {
+  PRE_ROLL
+  MID_ROLL
+  SIDEBAR
+  SPONSORED_VIDEO
+}
+
+enum AdStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum FlagStatus {
+  PENDING
+  RESOLVED
+}
+
+enum ContentType {
+  COMMENT
+  VIDEO
+  USER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  fullName      String
+  email         String?   @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  country       String?
+  phoneCode     String?
+  phoneNumber   String?
+  role          Role      @default(VIEWER)
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  channel          Channel?
+  comments         Comment[]
+  viewHistory      ViewHistory[]
+  searchHistory    SearchHistory[]
+  savedSearches    SavedSearch[]
+  notifications    Notification[]
+  likes            Like[]
+  subscriptions    Subscription[]
+  adImpressions    AdImpression[]
+  flagRecords      FlagRecord[]   @relation("Reporter")
+}
+
+model Channel {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channelName    String
+  description    String?
+  avatarUrl      String?
+  bannerUrl      String?
+  followersCount Int       @default(0)
+
+  // Relations
+  videos         Video[]
+  subscribers    Subscription[]
+}
+
+model Video {
+  id              String         @id @default(cuid())
+  channelId       String
+  channel         Channel        @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  
+  videoFormat     VideoFormat    @default(LONG)
+  videoUrl        String?
+  playbackId      String?        // For streaming services like Mux
+  
+  // Property Info
+  title           String
+  description     String?
+  propertyType    PropertyType
+  
+  // Location
+  country         String
+  city            String
+  address         String?
+  
+  // Details
+  bedrooms        Int?
+  bathrooms       Float?
+  sizeSqm         Float?
+  price           Decimal?
+  status          PropertyStatus
+  
+  // Contact overrides
+  phoneCode       String?
+  phoneNumber     String?
+  
+  // Metrics
+  viewsCount      Int            @default(0)
+  likesCount      Int            @default(0)
+  createdAt       DateTime       @default(now())
+
+  // Relations
+  comments        Comment[]
+  viewHistory     ViewHistory[]
+  likes           Like[]
+  adImpressions   AdImpression[]
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channelId String
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, channelId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, videoId])
+}
+
+model ViewHistory {
+  id                     String   @id @default(cuid())
+  userId                 String
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId                String
+  video                  Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  watchDurationPercentage Float   @default(0)
+  viewedAt               DateTime @default(now())
+}
+
+model SearchHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  searchQuery String?
+  filters     Json?    // Stores City, Type, Price, Beds
+  searchedAt  DateTime @default(now())
+}
+
+model SavedSearch {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  keywords    String?
+  filters     Json     // The stored criteria to match against
+  createdAt   DateTime @default(now())
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment? @relation("Replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies   Comment[] @relation("Replies")
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String   // NEW_VIDEO, SEARCH_MATCH, COMMENT_REPLY
+  message     String
+  sourceUrl   String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Advertisement {
+  id              String   @id @default(cuid())
+  companyId       String   // References an external agency or Company user
+  type            AdType   @default(PRE_ROLL)
+  title           String
+  targetUrl       String
+  videoAssetUrl   String?
+  imageAssetUrl   String?
+  targetAudience  Json?    // Demographics/Filters
+  budget          Decimal?
+  status          AdStatus @default(ACTIVE)
+  expiresAt       DateTime?
+  createdAt       DateTime @default(now())
+
+  impressions     AdImpression[]
+}
+
+model AdImpression {
+  id              String   @id @default(cuid())
+  advertisementId String
+  advertisement   Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  videoId         String?
+  video           Video?        @relation(fields: [videoId], references: [id], onDelete: SetNull)
+  action          String        // VIEW, CLICK, SKIP
+  timestamp       DateTime      @default(now())
+}
+
+model FlagRecord {
+  id          String      @id @default(cuid())
+  contentType ContentType
+  contentId   String
+  reporterId  String
+  reporter    User        @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reason      String
+  status      FlagStatus  @default(PENDING)
+  createdAt   DateTime    @default(now())
+}
