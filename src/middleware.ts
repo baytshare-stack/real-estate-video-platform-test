@@ -11,6 +11,7 @@ const MAX_REQUESTS = 100;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  let response: NextResponse | null = null;
 
   // Get user IP safely
   const ip =
@@ -34,33 +35,34 @@ export async function middleware(request: NextRequest) {
         });
       } else {
         if (record.count >= MAX_REQUESTS) {
-          return new NextResponse("Too Many Requests", { status: 429 });
+          response = new NextResponse("Too Many Requests", { status: 429 });
+        } else {
+          record.count += 1;
         }
-
-        record.count += 1;
       }
     }
   }
 
   // Protect admin routes
-  if (pathname.startsWith("/admin")) {
+  if (!response && pathname.startsWith("/admin")) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev",
     });
 
     if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-
-    if ((token as any).role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/403", request.url));
+      response = NextResponse.redirect(new URL("/login", request.url));
+    } else if ((token as any).role !== "ADMIN") {
+      response = NextResponse.redirect(new URL("/403", request.url));
     }
   }
 
-  // Add security headers
-  const response = NextResponse.next();
+  // If no response has been decided, continue to the next handler.
+  if (!response) {
+    response = NextResponse.next();
+  }
 
+  // Add security headers to all responses.
   response.headers.set("X-XSS-Protection", "1; mode=block");
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
