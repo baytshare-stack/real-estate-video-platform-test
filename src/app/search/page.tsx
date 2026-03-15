@@ -14,10 +14,10 @@ export default async function SearchAndMapPage({ searchParams }: { searchParams:
   const searchResults = await prisma.video.findMany({
     where: query ? {
       OR: [
-        { title: { contains: query, mode: "insensitive" } },
-        { description: { contains: query, mode: "insensitive" } },
-        { property: { city: { contains: query, mode: "insensitive" } } },
-        { property: { country: { contains: query, mode: "insensitive" } } }
+        { title: { contains: query } },
+        { description: { contains: query } },
+        { property: { city: { contains: query } } },
+        { property: { country: { contains: query } } }
       ]
     } : {},
     orderBy: { createdAt: 'desc' },

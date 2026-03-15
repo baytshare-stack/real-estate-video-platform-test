@@ -6,7 +6,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = { 
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -32,25 +32,21 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user || (!user.passwordHash && !user.emailVerified)) {
+        if (!user || !user.passwordHash) {
            throw new Error("Invalid credentials");
         }
 
-        if (user.passwordHash) {
-          const isCorrectPassword = await bcrypt.compare(
-            credentials.password,
-            user.passwordHash
-          );
+        const isCorrectPassword = await bcrypt.compare(
+          credentials.password,
+          user.passwordHash
+        );
 
-          if (!isCorrectPassword) {
-             throw new Error("Invalid credentials");
-          }
+        if (!isCorrectPassword) {
+           throw new Error("Invalid credentials");
         }
-        
-        // Wait for email OTP Verification (to be built matching requirements)
-        if (!user.emailVerified) {
-             throw new Error("Please verify your email before logging in.");
-        }
+
+        // مؤقت: تجاهل emailVerified للتجربة المحلية
+        // يمكنك تفعيلها لاحقًا قبل النشر
 
         return user;
       },
