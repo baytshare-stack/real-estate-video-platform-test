@@ -23,11 +23,25 @@ export const LanguageProvider = ({
   // A helper function to safely extract translated strings
   const translate = (namespace: keyof Dictionary, key: string): string => {
     try {
-       const section = dictionary[namespace];
-       if (section && key in section) {
-         return section[key]; // Returns the translated string
-       }
-       return key; // Fallback to raw key if missing
+      const section = dictionary[namespace];
+      if (!section) return key;
+
+      const keys = key.split('.');
+      let value: any = section;
+
+      for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+          value = value[k];
+        } else {
+          return key; // Fallback to raw key if missing
+        }
+      }
+
+      if (typeof value === 'string') {
+        return value; // Returns the translated string
+      }
+
+      return key; // Fallback to raw key if missing or not a string
     } catch {
        return key;
     }

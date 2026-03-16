@@ -33,19 +33,47 @@
     "recommended": "Recommended Properties"
   },
   "upload": {
-    "title": "Upload Video",
+    "title": "Upload Property Video",
+    "videoStep": "Video & Thumbnail",
+    "propertyStep": "Property Details",
+    "locationStep": "Location Details",
     "videoTitle": "Video Title",
+    "videoTitlePlaceholder": "e.g. Stunning 3BR Penthouse in Downtown",
     "description": "Description",
+    "descriptionPlaceholder": "Describe the property features, amenities...",
+    "videoFile": "Video File",
+    "youtubeUrl": "YouTube URL",
+    "youtubePlaceholder": "https://youtube.com/watch?v=...",
+    "thumbnail": "Thumbnail Image",
     "propertyType": "Property Type",
+    "types": {
+      "APARTMENT": "Apartment",
+      "VILLA": "Villa",
+      "HOUSE": "House",
+      "OFFICE": "Office",
+      "SHOP": "Shop",
+      "COMMERCIAL": "Commercial",
+      "LAND": "Land"
+    },
     "status": "Status",
+    "statuses": {
+      "FOR_SALE": "For Sale",
+      "FOR_RENT": "For Rent"
+    },
     "price": "Price",
     "bedrooms": "Bedrooms",
     "bathrooms": "Bathrooms",
-    "size": "Size (Sqm)",
+    "size": "Size",
     "country": "Country",
+    "selectCountry": "Select Country",
     "city": "City",
-    "address": "Address",
-    "submit": "Upload"
+    "selectCity": "Select City",
+    "selectCountryFirst": "Select a country first",
+    "address": "Address / Neighborhood",
+    "addressPlaceholder": "e.g. Upper East Side",
+    "submit": "Publish Video Tour",
+    "uploading": "Uploading...",
+    "dragDrop": "Drag and drop or click to upload"
   },
   "channel": {
     "videos": "Videos"

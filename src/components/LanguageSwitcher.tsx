@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Globe } from 'lucide-react';
-import { useTranslation } from '@/i18n/LanguageProvider';
-import { locales, localeNames, type Locale } from '@/i18n/config';
+import { useTranslation } from '../i18n/LanguageProvider';
+import { locales, languages, type Locale } from '../i18n/config';
 
 export default function LanguageSwitcher() {
   const { locale } = useTranslation();
@@ -49,7 +49,7 @@ export default function LanguageSwitcher() {
                 locale === l ? 'bg-white/10 text-white font-bold' : 'text-gray-300 hover:bg-white/5 hover:text-white'
               }`}
             >
-              <span>{localeNames[l]}</span>
+              <span>{languages[l].name}</span>
               {locale === l && <span className="w-2 h-2 rounded-full bg-blue-500"></span>}
             </button>
           ))}

@@ -33,19 +33,47 @@
     "recommended": "عقارات مقترحة"
   },
   "upload": {
-    "title": "رفع فيديو",
+    "title": "رفع فيديو العقار",
+    "videoStep": "الفيديو والصورة المصغرة",
+    "propertyStep": "تفاصيل العقار",
+    "locationStep": "تفاصيل الموقع",
     "videoTitle": "عنوان الفيديو",
+    "videoTitlePlaceholder": "مثال: بنتهاوس مذهل بـ 3 غرف في وسط المدينة",
     "description": "الوصف",
+    "descriptionPlaceholder": "صف ميزات العقار والمرافق...",
+    "videoFile": "ملف الفيديو",
+    "youtubeUrl": "رابط يوتيوب",
+    "youtubePlaceholder": "https://youtube.com/watch?v=...",
+    "thumbnail": "الصورة المصغرة",
     "propertyType": "نوع العقار",
+    "types": {
+      "APARTMENT": "شقة",
+      "VILLA": "فيلا",
+      "HOUSE": "منزل",
+      "OFFICE": "مكتب",
+      "SHOP": "محل",
+      "COMMERCIAL": "تجاري",
+      "LAND": "أرض"
+    },
     "status": "الحالة",
+    "statuses": {
+      "FOR_SALE": "للبيع",
+      "FOR_RENT": "للإيجار"
+    },
     "price": "السعر",
     "bedrooms": "غرف النوم",
-    "bathrooms": "الحمامات",
-    "size": "المساحة (متر مربع)",
+    "bathrooms": "حمامات",
+    "size": "المساحة",
     "country": "الدولة",
+    "selectCountry": "اختر الدولة",
     "city": "المدينة",
-    "address": "العنوان",
-    "submit": "رفع"
+    "selectCity": "اختر المدينة",
+    "selectCountryFirst": "اختر الدولة أولاً",
+    "address": "العنوان / الحي",
+    "addressPlaceholder": "مثال: المعادي، القاهرة",
+    "submit": "نشر جولة الفيديو",
+    "uploading": "جارٍ الرفع...",
+    "dragDrop": "اسحب وأفلت أو انقر للرفع"
   },
   "channel": {
     "videos": "الفيديوهات"

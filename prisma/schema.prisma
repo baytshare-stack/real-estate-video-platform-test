@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,6 +5,84 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  fullName      String
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  country       String?
+  phoneCode     String?
+  phoneNumber   String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  channel       Channel?
+  comments      Comment[]
+  likes         Like[]
+}
+
+model Channel {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  avatar      String?
+  ownerId     String  @unique
+  owner       User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  videos      Video[]
+}
+
+model Video {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  videoUrl    String?
+  thumbnail   String?
+  channelId   String
+  likesCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  comments    Comment[]
+  likes       Like[]
+  property    Property?
+  channel     Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+}
+
+model Property {
+  id           String         @id @default(cuid())
+  videoId      String         @unique
+  propertyType PropertyType
+  status       PropertyStatus
+  price        Decimal?
+  bedrooms     Int?
+  bathrooms    Float?
+  sizeSqm      Float?
+  country      String
+  city         String
+  address      String?
+  createdAt    DateTime       @default(now())
+  video        Video          @relation(fields: [videoId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  videoId   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  videoId   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
 }
 
 enum Role {
@@ -29,97 +105,4 @@ enum PropertyType {
 enum PropertyStatus {
   FOR_SALE
   FOR_RENT
-}
-
-model User {
-  id            String    @id @default(cuid())
-  fullName      String
-  email         String    @unique
-  emailVerified DateTime?
-  passwordHash  String?
-  country       String?
-  phoneCode     String?
-  phoneNumber   String?
-  role          Role      @default(USER)
-  createdAt     DateTime  @default(now())
-
-  channel  Channel?
-  comments Comment[]
-  likes    Like[]
-}
-
-model Channel {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-  avatar      String?
-
-  ownerId String @unique
-  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  videos Video[]
-}
-
-model Video {
-  id          String  @id @default(cuid())
-  title       String
-  description String?
-  videoUrl    String?
-  thumbnail   String?
-
-  channelId String
-  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-
-  property Property?
-
-  comments Comment[]
-  likes    Like[]
-
-  likesCount Int @default(0)
-
-  createdAt DateTime @default(now())
-}
-
-model Property {
-  id      String @id @default(cuid())
-  videoId String @unique
-  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
-  propertyType PropertyType
-  status       PropertyStatus
-
-  price     Decimal?
-  bedrooms  Int?
-  bathrooms Float?
-  sizeSqm   Float?
-
-  country String
-  city    String
-  address String?
-
-  createdAt DateTime @default(now())
-}
-
-model Comment {
-  id      String @id @default(cuid())
-  content String
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  videoId String
-  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-}
-
-model Like {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  @@unique([userId, videoId])
 }

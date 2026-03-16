@@ -1,13 +1,15 @@
+// src/app/layout.tsx
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
-import { Providers } from "@/components/Providers";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import { Providers } from "../components/Providers";
 import { cookies } from "next/headers";
-import { defaultLocale, type Locale, locales } from "@/i18n/config";
-import { getDictionary } from "@/i18n/dictionaries";
-import { LanguageProvider } from "@/i18n/LanguageProvider";
+import { defaultLocale, type Locale, locales } from "../i18n/config";
+import { getDictionary } from "../i18n/dictionaries";
+import { LanguageProvider } from "../i18n/LanguageProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,11 +23,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // الحصول على لغة المستخدم من الكوكيز
   const cookieStore = await cookies();
   const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value as Locale;
+  
+  // التحقق من أن اللغة مدعومة وإلا استخدام اللغة الافتراضية
   const locale = cookieLocale && locales.includes(cookieLocale) ? cookieLocale : defaultLocale;
   const dict = await getDictionary(locale);
 
+  // تحديد اتجاه الصفحة بناءً على اللغة
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
